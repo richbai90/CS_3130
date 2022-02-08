@@ -1,0 +1,198 @@
+---
+title: "A Comparison of Restaurants in the Greater Salt Lake Area to Those in San Diego"
+author: "Rich Baird"
+date: "1/29/2022"
+output: html_document
+---
+
+```{r setup, echo=FALSE, results='hide', include=FALSE}
+library("jsonlite")
+library("ggplot2")
+library("viridis")
+library("hrbrthemes")
+library("dplyr")
+library("geosphere")
+
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+price_level_to_dollars <- function(lvl = NA) if (is.na(lvl)) "NA" else strrep("$", lvl)
+
+slc_data <- jsonlite::stream_in(con = file("slc_restaurants.json"))
+sd_data <- jsonlite::stream_in(con = file("sd_restaurants.json"))
+slc_data <- data.frame(slc_data)
+sd_data <- data.frame(sd_data)
+
+sd_data$loc <- "San Diego"
+slc_data$loc <- "Salt Lake City"
+
+sd_raw_data <- sd_data
+slc_raw_data <- slc_data
+```
+
+## Motivation
+
+Recent reporting has suggested that San Diego, CA is home to the best restaurants in the continental United States. That San Diego offers a rich and varied dining experience is not in question, however, the author takes issue with the use of superlatives like "the best" restaurants.
+
+
+Such reporting may have an unintentionally disparaging effects on the local restaurant scene of lesser known communities with equally diverse and exciting experiences to offer. These effects pose an existential threat to the industry. If the article is accepted without contest, consumer engagement in the industry could decline as the assumption that there are no good options is reinforced. This becomes a self fulfilling prophecy. Small local restaurants without the means to market at the scale of larger chains loose out as consumers become apathetic towards engaging in the local restaurant scene. 
+
+To declare something as the best, overwhelming evidence must exist in favor of that perspective. To survey all the available options in the major metropolises of the United States would require more resources than can be dedicated to this paper. On the other hand, to disprove this statement, only one counter example must exist. As a representative of the restaurateur's association in Salt Lake City (SLC), this author posits that the SLC dining experience is capable of rivaling the most prestigious restaurant scenes.
+
+This paper explores this hypothesis by examining the restaurant scene in both the greater Salt Lake area, as well as San Diego, and attempts to answer with a degree of certainty whether the SLC can put a real contest to the thrown laid claim to by San Diego and those who report on it. 
+
+## Methods
+
+As noted in the motivation section, superlatives such as "the best" are very difficult to qualify. What makes a restaurant better than another? Is it the number of awards it has to its name? Is it reviews on your favorite web platform? Or is it more personal, the nostalgia associated with a particular pub perhaps?
+
+For the purposes of this paper, the data collected will be of two categories: quantitative and qualitative. As personal attachments and fond memories can be neither quantified nor qualified, they are not considered here. The data has been collected via the Google Maps API, querying for any establishment tagged as providing food. This may in some cases include establishments such as hotels which are not relevant to this study. These results are filtered before comparison. To generate the test data yourself, with the source in hand, run the the `generate_data.sh` in your terminal. **Note:** This script requires python3 to be installed and will only run on Nix machines. In case the source cannot be obtained, the raw data and the python script used to generate it are included in the appendix.
+
+## Caveats
+
+The data collected contains anything tagged on Google Maps as providing food. For this reason, some of the data may not represent customer opinions about the food served.
+
+## Analysis
+
+A useful plae to begin our analysis is
+obtaining an overview of the available data.
+Fig 1. provides an overview of the collected data grouped by average rating
+
+```{r fig1}
+
+sd_data <- data.frame(sd_raw_data$place_id, sd_raw_data$name, sd_raw_data$rating, sd_raw_data$user_ratings_total, sd_raw_data$price_level, sd_raw_data$loc)
+slc_data <- data.frame(slc_raw_data$place_id, slc_raw_data$name, slc_raw_data$rating, slc_raw_data$user_ratings_total, slc_raw_data$price_level, slc_raw_data$loc)
+
+colnames(sd_data) <- c("id", "name", "rating", "ratings_count", "price_level", "loc")
+colnames(slc_data) <- c("id", "name", "rating", "ratings_count", "price_level", "loc")
+
+complete_data <- rbind(slc_data, sd_data)
+
+data <- select(complete_data, loc, price_level, rating) %>%
+    group_by(loc, price_level) %>%
+    mutate(avg_rating = mean(rating)) %>%
+    mutate(dollars = price_level_to_dollars(price_level))
+
+ggplot(data, aes(fill = dollars, y = avg_rating, x = loc), label = avg_rating) +
+    geom_bar(position = "dodge", stat = "identity") +
+    scale_fill_viridis(discrete = T, option = "E") +
+    labs(
+        title = "Restaurants by Rating, Price, and Location",
+        caption = "Figure 1: Data collected from Google Maps Places API.",
+        fill = ""
+    ) +
+    theme_ipsum() +
+    theme(legend.position = "left") +
+    xlab("") +
+    ylab("Average Rating")
+```
+
+Each graph in Figure 1 is broken out by the price level according to Google Maps. It can be
+seen that in every price range, the average rating is comparable in each price bracket. It is interesting to note that
+whereas San Diego has a fairly linear relationship between price and rating, the same cannot be said for Salt Lake.
+Indeed the price ranges with the highest average rating in Salt Lake, the two $ and four $ buckets, have nearly the same star rating.
+This may reflect something of the psyche of the average SLC customer. 
+It cannot be told for certain from the collected data alone, however, it isn't a far stretch to suggest that in
+SLC customers expect quality and thrift from their dining options.
+
+It is important to note that the way Google Maps categorizes the price level in their database is an opaque process.
+The categories offer a useful overview, but may not tell the full story. Furthermore, there is a large number of entries without price data (see NA category).
+Without the pricing information for these entries, it is impossible to know how they might influence these results.
+
+Another useful comparison is to examine the quality density. This is achieved by charting
+the rating score as a function of distance from where the search was originated on the map.
+For SLC the search origin is the coordinates [(40.771428,-111.893880)](https://www.google.com/maps/place/40%C2%B046'17.1%22N+111%C2%B053'38.0%22W/@40.771428,-111.8960687,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x70c20276f73dacda!8m2!3d40.771428!4d-111.89388). For San Diego, the origin 
+is the coordinates [(32.715672,-117.161045)](https://www.google.com/maps/place/32%C2%B042'56.4%22N+117%C2%B009'39.8%22W/@32.715672,-117.1632337,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x7d47b11c022febc6!8m2!3d32.715672!4d-117.161045).
+The distance is processed using the Haversine method, which provides the distance between two points of longitude and lattitude as the crow flies.
+
+```{R quality_density}
+slc_geometry <- slc_raw_data$geometry$location
+sd_geometry <- sd_raw_data$geometry$location
+
+sd_data <- data.frame(sd_raw_data$rating, sd_raw_data$price_level, sd_raw_data$loc, sd_geometry$lat, sd_geometry$lng)
+slc_data <- data.frame(slc_raw_data$rating, slc_raw_data$price_level, slc_raw_data$loc, slc_geometry$lat, slc_geometry$lng)
+
+slc_data$origin_lat <- 40.771428
+slc_data$origin_lng <- -111.893880
+sd_data$origin_lat <- 32.715672
+sd_data$origin_lng <- -117.161045
+
+colnames(sd_data) <- c("rating", "price_level", "loc", "lat", "lng", "origin_lat", "origin_lng")
+colnames(slc_data) <- c("rating", "price_level", "loc", "lat", "lng", "origin_lat", "origin_lng")
+
+complete_data <- rbind(slc_data, sd_data)
+
+data <- complete_data %>%
+    group_by(loc) %>%
+    rowwise() %>%
+    mutate(
+        distance = round(signif(distHaversine(c(origin_lng, origin_lat), c(lng, lat)), 4))
+    ) %>%
+    mutate(distance_cat = Map(function(dist) {
+        if (dist < 100) {
+            "a"
+        } else if (dist < 300) {
+            "b"
+        } else if (dist < 500) {
+            "c"
+        } else if (dist < 700) {
+            "d"
+        } else if (dist < 900) {
+            "e"
+        } else if (dist < 1100) {
+            "f"
+        } else if (dist < 1300) {
+            "g"
+        } else if (dist < 1500) {
+            "h"
+        } else {
+            "out_there"
+        }
+    }, distance)) %>%
+    group_by(distance_cat) %>%
+    mutate(avg_rating = mean(rating))
+
+data %>%
+    ggplot(aes(x = distance, y = avg_rating, group = loc, color = loc)) +
+    geom_line() +
+    xlab("Distance (m)") +
+    ylab("Average Rating")
+```
+
+The data above has been grouped into distance bins beginning at 100 meters
+and growing every 200 meters up to distances > 1500 meters. It is here that a 
+dencely compact city San Diego has a distinct advantage. The highest rated
+restaurants in the area are all within walking distance of the San Diego city center.
+The same is not true of Salt Lake City. The graph above indicates a much greater spread of
+distances from the city center to the highest rated restaurants. For practical purposes, this means
+that some searching, and some traveling is required to find the best restaurants in the city.
+This is an area where SLC has room to grow.
+Having a lot of local options to choose from is great,
+but as a visitor to the city, leaving the familiarity of the down town area
+may not be something you're up to.
+
+For a final comparison, we will try to get a sense for the uniqueness of the experience.
+To do this we'll examine the percentage of restaurants that show up only on the query for their city.
+```{r operating_hours}
+slc_restaurants <- slc_raw_data$name
+sd_restaurants <- sd_raw_data$name
+diff_set_slc <- setdiff(slc_restaurants, sd_restaurants)
+diff_set_sd <- setdiff(sd_restaurants, slc_restaurants)
+slc_unique <- length(diff_set_slc)/length(slc_restaurants) * 100
+sd_unique <- length(diff_set_sd)/length(sd_restaurants) * 100
+pie(c(slc_unique, 100 - slc_unique), labels = c("Unique", "Not Unique"), main="Percentage of Restaurants Unique to SLC")
+pie(c(sd_unique, 100 - sd_unique), labels = c("Unique", "Not Unique"), main="Percentage of Restaurants Unique to San Diego")
+```
+
+San Diego has a slight edge here, eeking out a 95% unique score over
+SLC's 90%. This indicates a few more chains in the SLC area than in the same radius of San Diego, but not by much.
+
+## Conclusion
+
+It is fair to say that in terms of atmosphere, San Diego may provide a richer dining experience.
+It is difficult for a city like Salt Lake to compete with the density of San Diego. There is no question
+that you will have to look harder to find what you are looking for in Salt Lake, and if you don't have a wanderer's spirit, San Diego may be right for you.
+
+That said, our analysis clearly indicates that SLC offers an equally rewarding experience for those willing to do a bit of leg work.
+This isn't necesarily a bad thing either, after all, Salt Lake has much more to offer than just an great dining experience, and there's not better way to discover
+a city than by getting out and exploring it.

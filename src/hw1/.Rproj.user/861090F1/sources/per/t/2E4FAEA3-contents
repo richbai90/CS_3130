@@ -1,0 +1,28 @@
+# A Comparison of Restaurants in the Greater Salt Lake Area to Those in San Diego
+## Motivation
+
+Recent reporting has suggested that San Diego, CA is home to the best restaurants in the continental United States. That San Diego offers a rich and varied dining experience is not in question, however, the author takes issue with the use of superlatives like "the best" restaurants.
+
+
+Such reporting may have an unintentionally disparaging effects on the local restaurant scene of lesser known communities with equally diverse and exciting experiences to offer. These effects pose an existential threat to the industry. If the article is accepted without contest, consumer engagement in the industry could decline as the assumption that there are no good options is reinforced. This becomes a self fulfilling prophecy. Small local restaurants without the means to market at the scale of larger chains loose out as consumers become apathetic towards engaging in the local restaurant scene. 
+
+To declare something as the best, overwhelming evidence must exist in favor of that perspective. To survey all the available options in the major metropolises of the United States would require more resources than can be dedicated to this paper. On the other hand, to disprove this statement, only one counter example must exist. As a representative of the restaurateur's association in Salt Lake City (SLC), this author posits that the SLC dining experience is capable of rivaling the most prestigious restaurant scenes.
+
+This paper explores this hypothesis by examining the restaurant scene in both the greater Salt Lake area, as well as San Diego, and attempts to answer with a degree of certainty whether the SLC can put a real contest to the thrown laid claim to by San Diego and those who report on it. 
+
+## Methods
+
+As noted in the motivation section, superlatives such as "the best" are very difficult to qualify. What makes a restaurant better than another? Is it the number of awards it has to its name? Is it reviews on your favorite web platform? Or is it more personal, the nostalgia associated with a particular pub perhaps?
+
+For the purposes of this paper, the data collected will be of two categories: quantitative and qualitative. As personal attachments and fond memories can be neither quantified nor qualified, they are not considered here.
+
+### Qualitative Data
+
+The collected qualitative data represents the data an average consumer might use to categorize a search such as location, price, food type, price, and expected formality. 
+
+This information is readily available via Google Maps, and its API. This data is primarily used to make like comparisons. It is hardly appropriate to compare a local Cantonese shop on the outskirts of the city to a 3 Michelin Star French restaurant in the heart of the down-town area. The data is carefully categorized to ensure such comparisons aren't made.
+
+### Quantitative Data
+The quantitative data used in this study includes anything that can be measured to rate the establishment. This will include star ratings, visits per day, number of awards the establishment has received, as well as over all "enthusiasm score" of the reviews.
+
+### Enthusiasm Score

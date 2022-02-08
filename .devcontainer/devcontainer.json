@@ -1,0 +1,22 @@
+{
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "context": "."
+  },
+  "mounts": ["source=${localWorkspaceFolder}/src,target=/home/R/src,type=bind,consistency=cached"],
+  "workspaceFolder": "/home/R/src",
+  "name": "RStudio",
+  "extensions": ["ikuyadeu.r", "rdebugger.r-debugger"],
+  "postCreateCommand": [],
+  "settings": {
+    "r.bracketedPaste": true,
+    "r.rterm.linux": "/home/R/.local/bin/radian",
+    "r.lsp.path": "/usr/lib/R",
+    "r.lsp.debug": true,
+    "r.lsp.diagnostics": true,
+    "r.rterm.option": [
+      "--no-save",
+      "--no-restore"
+    ]
+  }
+}

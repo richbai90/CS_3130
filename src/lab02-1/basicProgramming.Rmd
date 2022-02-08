@@ -1,0 +1,438 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+# Lab 2: The Basics of R Programming
+
+## VERY IMPORTANT INSTRUCTIONS
+
+In this lab, you will be reading the .html file, and periodically updating the .Rmd file. So at this time make sure you have the .Rmd file open!!
+
+<span style="color:red">
+To do certain questions in the lab, you will need to have some variables from the .Rmd file stored in your working `environment`. We will guide you in loading variables into your working `environment`. It is essential that you follow all instructions **regarding putting variables in your working environment**; otherwise this lab will be extremely difficult for you. Instructions about storing variables in the working environment will be in red</span>
+
+There are two types of activities in this lab. These are labeled `READ` and `QUESTION`. Doing both is critical to your development as an `R` programmer. The `QUESTIONS` will correspond to Canvas questions that you will turn in for the lab
+
+
+## READ: Data Types
+
+`R` has a number of basic data *types*.
+
+- Numeric
+    - Also known as Double. The default type when dealing with numbers.
+    - Examples: `1`, `1.0`, `42.5`
+- Integer
+    - Examples: `1L`, `2L`, `42L`
+- Complex
+    - Example: `4 + 2i`
+- Logical
+    - Two possible values: `TRUE` and `FALSE`
+    - You can also use `T` and `F`, but this is *not* recommended.
+    - `NA` is also considered logical.
+- Character
+    - Examples: `"a"`, `"Statistics"`, `"1 plus 2."`
+
+## READ: Data Structures
+
+`R` also has a number of basic data *structures*. A data structure is either homogeneous (all elements are of the same data type) or heterogeneous (elements can be of more than one data type).
+
+| Dimension | **Homogeneous** | **Heterogeneous** |
+|-----------|-----------------|-------------------|
+| 1         | Vector          | List              |
+| 2         | Matrix          | Data Frame        |
+| 3+        | Array           |                   |
+
+## READ: Vectors
+
+Many operations in `R` make heavy use of **vectors**. Vectors in `R` are indexed starting at `1`. That is what the `[1]` in the output is indicating, that the first element of the row being displayed is the first element of the vector. Larger vectors will start additional rows with `[*]` where `*` is the index of the first element of the row.
+
+Possibly the most common way to create a vector in `R` is using the `c()` function, which is short for "combine."" As the name suggests, it combines a list of elements separated by commas. 
+
+```{r}
+c(1, 3, 5, 7, 8, 9)
+```
+
+Here `R` simply outputs this vector. If we would like to store this vector in a **variable** we can do so with the **assignment** operator `=`. In this case the variable `x` now holds the vector we just created, and we can access the vector by typing `x`.
+
+```{r}
+x = c(1, 3, 5, 7, 8, 9)
+x
+```
+
+As an aside, there is a long history of the assignment operator in `R`, partially due to the keys available on the [keyboards of the creators of the `S` language.](https://twitter.com/kwbroman/status/747829864091127809){target="_blank"} (Which preceded `R`.) For simplicity we will use `=`, but know that often you will see `<-` as the assignment operator. 
+
+The pros and cons of these two are well beyond the scope of this book, but know that for our purposes you will have no issue if you simply use `=`.
+
+If you wish to use `<-`, you will still need to use `=`, however only for argument passing. Some users like to keep assignment (`<-`) and argument passing (`=`) separate. No matter what you choose, the more important thing is that you **stay consistent**. Also, if working on a larger collaborative project, you should use whatever style is already in place.
+
+Because vectors must contain elements that are all the same type, `R` will automatically coerce to a single type when attempting to create a vector that combines multiple types.
+
+```{r}
+c(42, "Statistics", TRUE)
+c(42, TRUE)
+```
+
+```{r,echo=FALSE}
+heightData = read.csv("data/classHeight.csv")
+```
+
+## DO:
+
+<span style="color:red">In the .Rmd file, find QUESTION 1. It should be around line 80. Just above it, the `heightData` data set is read into R. We're going to put the `heightData` data set into our `environment`. To do this, put your cursor at the end of the line `heightData = read.csv("data/classHeight.csv")`. Then on Mac, press `cmd+Enter`. On windows, press `ctrl+Enter`. In your global envioronment `heightData` will be loaded in the `environment` pane. Now put your cursor on the next line, and run this line in the same way -- making an update to the `heightData` variable. </span>
+
+
+## QUESTION 1: Learning Outcome -- Getting a First Look at a Data Frame
+In a dataframe, each column is a vector. We'll analyze the `heightData` data frame, which has been loaded in R. For now, we'll be more concerned about the vectors inside the data frames than the data frame itself. Later we'll study data frames in more detail.
+
+<span style="color:red">Run `head(heightData)` in the console </span>. What are the three columns that you see? As your answer to Canvas question 1, enter the names of the columns.
+
+## READ:
+
+Natasha has the last names of all the students. She wants to add them to the name column. They are stored in the below vector.  Run this line in Rstudio.
+
+```{r}
+lastNames = c(rep("James",5),rep("Butler",5),rep("Cooper",5),rep("White",5))
+#Another way to do this which is more eloquent is:
+#lastNames = rep(c("James","Butler","Cooper","White"),each=5)
+#You can use this strategy to answer question 3. But don't worry about that right now.
+```
+
+## QUESTION 2: Learning Outcome -- Analyzing the Documentation
+
+To add the last names to the names column, we'll use the `str_c` function from the `stringr` package.  The `library` function imports packages into your working environment.  Run the following line in Rstudio now.
+
+```{r}
+library(stringr)
+```
+
+<span style="color:red">To access the documentation, first load the library stringr into the environment by running `library(stringr)`. Then enter `?str_c` in the `console` </span>. For question 2, copy and paste the "description" text as your answer into Canvas question 2.
+
+## DO: (LATER QUESTIONS WILL DEPEND ON THIS!!!!)
+The below code is one way to update the names column using the `str_c` function.  Run this line now.
+
+```{r}
+heightData$names = str_c(heightData$names,lastNames,sep=" ")
+```
+
+<span style="color:red">Make the following updates to `heightData` that you have stored in your environment by finding in the .Rmd file the following lines, and running them in the given order below.  NB: What will happen if you run the 3rd line more than once?
+
+<ol>
+  <li>`lastNames = c(rep("James",5),rep("Butler",5),rep("Cooper",5),rep("White",5))`</li>
+  <li>`library(stringr)`</li>
+  <li>`heightData$names = str_c(heightData$names,lastNames,sep=" ")`</li>
+</ol>
+</span>
+
+
+## READ: Constructing Vectors
+
+Frequently you may wish to create a vector based on a sequence of numbers. The quickest and easiest way to do this is with the `:` operator, which creates a sequence of integers between two specified integers.
+
+```{r}
+(y = 1:100)
+```
+
+Here we see `R` labeling the rows after the first since this is a large vector. Also, we see that by putting parentheses around the assignment, `R` both stores the vector in a variable called `y` and automatically outputs `y` to the console.
+
+Note that scalars do not exists in `R`. They are simply vectors of length `1`.
+
+```{r}
+2
+```
+
+If we want to create a sequence that isn't limited to integers and increasing by 1 at a time, we can use the `seq()` function.
+
+```{r}
+seq(from = 1.5, to = 4.2, by = 0.1)
+```
+
+We will discuss functions in detail later, but note here that the input labels `from`, `to`, and `by` are optional.
+
+```{r}
+seq(1.5, 4.2, 0.1)
+```
+
+Another common operation to create a vector is `rep()`, which can repeat a single value a number of times.
+
+```{r}
+rep("A", times = 10)
+```
+
+The `rep()` function can be used to repeat a vector some number of times.
+
+```{r}
+rep(x, times = 3)
+```
+
+We have now seen four different ways to create vectors:
+
+- `c()`
+- `:`
+- `seq()`
+- `rep()`
+
+So far we have mostly used them in isolation, but they are often used together.
+
+```{r}
+c(x, rep(seq(1, 9, 2), 3), c(1, 2, 3), 42, 2:4)
+```
+
+The length of a vector can be obtained with the `length()` function.
+
+```{r}
+length(x)
+length(y)
+```
+
+
+## QUESTION 3 -- Learning Outcome: Learning to Make Structured Vectors
+
+Natasha would like to add blood type to the height data set. By coincidence, it turns out that the James's all have blood type A, the Butler's all have blood type B, the Cooper's all have blood type A, and the White's all have blood type O.
+
+Below, (in the .Rmd file) write the code to construct the vector of blood types, and add this vector to the data frame, called it `bloodType`
+
+```{r}
+##your code goes here: Hint the James are the first 5, the Butler's are the next 5, the Coopers are the next 5, and the White's are the last 5. So trying using the rep function. You'll fill in the ??? with the correct syntax to construct the blood type vector. 
+#Remember to uncomment the below two lines when you are done by removing the # from the beginning of each line. (for the below two lines)
+bloodTypeVector = c(rep("A", 5), rep("B", 5), rep("A",5), rep("O", 5))
+heightData$bloodType = bloodTypeVector 
+```
+
+<span style="color:red">ANOTHER HINT for the above question: You can use the `console` to play around with constructing the correct vector so you don't have to reknit the markdown everytime to check your work. Or you can play around by constructing the line in an R script (which you would make via `File -> New File -> R script)`. Writing the line in there, and then using `Cmd+Enter` or `Ctrl+Enter` to see if your vector is what you want it to be. When you are confident you have the write code, then you can paste into the space above. </span>
+
+
+Once you have written the code in the space above, reknit the Rmarkdown -- recall to knit the .Rmd file, find the blue `knit` button -- on the drop down arrow, click `knit to HTML`. You should see the blood type vector below after you have filled in the code and reknitted the markdown.
+
+```{r,echo = FALSE}
+head(heightData)
+```
+For this question, past your code as your answer to question 3 in Canvas.
+
+## READ: Subsetting
+
+To subset a vector, we use square brackets, `[]`. 
+
+```{r}
+x
+x[1]
+x[3]
+```
+
+We see that `x[1]` returns the first element, and `x[3]` returns the third element.
+
+```{r}
+x[-2]
+```
+
+We can also exclude certain indexes, in this case the second element.
+
+```{r}
+x[1:3]
+x[c(1,3,4)]
+```
+
+Lastly we see that we can subset based on a vector of indices.
+
+All of the above are subsetting a vector using a vector of indexes. (Remember a single number is still a vector.) We could instead use a vector of logical values.
+
+```{r}
+z = c(TRUE, TRUE, FALSE, TRUE, TRUE, FALSE)
+z
+```
+
+```{r}
+x[z]
+```
+
+## READ: Vectorization
+
+One of the biggest strengths of `R` is its use of vectorized operations. (Frequently the lack of understanding of this concept leads of a belief that `R` is *slow*. `R` is not the fastest language, but it has a reputation for being slower than it really is.)
+
+```{r}
+x = 1:10
+x + 1
+2 * x
+2 ^ x
+sqrt(x)
+log(x)
+```
+
+We see that when a function like `log()` is called on a vector `x`, a vector is returned which has applied the function to each element of the vector  `x`.
+
+
+## READ: Logical Operators
+
+| Operator | Summary               | Example               | Result |
+|----------|-----------------------|-----------------------|--------|
+| `x < y`  | `x` less than `y`                | `3 < 42`               | `r 3 < 42`               |
+| `x > y`  | `x` greater than `y`             | `3 > 42`               | `r 3 > 42`               |
+| `x <= y` | `x` less than or equal to `y`    | `3 <= 42`              | `r 3 <= 42`              |
+| `x >= y` | `x` greater than or equal to `y` | `3 >= 42`              | `r 3 >= 42`              |
+| `x == y` | `x`equal to `y`                  | `3 == 42`              | `r 3 == 42`              |
+| `x != y` | `x` not equal to `y`             | `3 != 42`              | `r 3 != 42`              |
+| `!x`     | not `x`                          | `!(3 > 42)`            | `r !(3 > 42)`            |
+| `x | y`  | `x` or `y`                       | `(3 > 42) | TRUE`      | `r (3 > 42) | TRUE`      |
+| `x & y`  | `x` and `y`                      | `(3 < 4) & ( 42 > 13)` | `r (3 < 4) & ( 42 > 13)` |
+
+In `R`, logical operators are vectorized. 
+
+```{r}
+x = c(1, 3, 5, 7, 8, 9)
+```
+
+```{r}
+x > 3
+x < 3
+x == 3
+x != 3
+```
+
+```{r}
+x == 3 & x != 3
+x == 3 | x != 3
+```
+
+This is extremely useful for subsetting.
+
+```{r}
+x[x > 3]
+x[x != 3]
+```
+
+```{r}
+sum(x > 3)
+as.numeric(x > 3)
+```
+
+Here we see that using the `sum()` function on a vector of logical `TRUE` and `FALSE` values that is the result of `x > 3` results in a numeric result. `R` is first automatically coercing the logical to numeric where `TRUE` is `1` and `FALSE` is `0`. This coercion from logical to numeric happens for most mathematical operations.
+
+```{r}
+which(x > 3)
+x[which(x > 3)]
+
+max(x)
+which(x == max(x))
+which.max(x)
+```
+
+## QUESTION 4: Learning Outcome - Using Boolean Subsetting
+
+Natasha's boss informers her that for every member of the Cooper family, their height information was collected improperly. So we'll need to do some work on **just the Coopers' data**
+
+We'll do this in two steps. The first step is Question 4. Here we will **create a boolean vector which is true on the row indices corresponding to the Coopers**. You'll need to use the built-in `endsWith` function. Look up the `endsWith` function using `?endsWith` in the console.
+
+Write your code below, and run in in Rstudio.
+
+```{r}
+# Fix the code below to contain a boolean array indicated the locations of the Coopers. HINT: 
+cooperIndices = endsWith(heightData$names, "Cooper")
+cooperIndices
+```
+<span style="color:red">Another hint: to play around with how to do this, you can either use the console or open up another r script. I recommend just playing around with the `heightData$names` vector and the `endsWith` fucntion in the console until you are confident you have the correct code.</span>
+
+When you've figured out how to do this, run `cooperIndices` in the console, and paste the output as the answer for Q4
+
+<span style="color:red">After you are done with question 4, make sure that in your enviornment, `cooperIndices` exists and stores your answer to question 4. We will use it in question 5. To do this, you can run `cmd+Enter` or `ctrl+Enter` on the line you filled in for question 4</span>
+
+## QUESTION 5: Learning Outcome - Use Boolean Subsetting
+
+Now that we have the `cooperIndices`, we can use boolean based subsetting to make the adjustment to the height vector of the `heightData` data frame.
+
+We've learned that the person who was measuring the heights of the Coopers used their
+ruler wrongly, and that their measurements were all short by exactly one inch.  We
+need to fix this in our data.
+
+Figure out what goes in the question mark area below (recall the previous question!). Then uncomment the below code in the markdown with your answer, and run the line in Rstudio (but not more than once!)
+
+```{r}
+#heightData$heights[cooperIndices] = heightData$heights[cooperIndices] + 1
+heightData
+```
+<span style="color:red">Now run the `heightData` above in the .Rmd file to store in your environment the latest version of `heightData`</span>
+
+As your answer to this question in Canvas, write what you put in the question mark area.
+
+## QUESTION 6: Learning Outcome -- Handling NA values
+Observe the below code:
+
+```{r}
+max(heightData$heights)
+```
+
+The output is disappointing; this is because there are `NA` values in the heights vector.
+The `NA` values in our heights vector are because the .csv file that we read in is **missing data**.  "NA" means "not available".  In general, `NA` values will work with various mathematical operations... note that the `NA` value was already in our data when we added 1 above.  Based on the results of that, and your knowledge of what `NA` means, what is `NA + 1`?  
+
+`NA` values can often cause problems.  Suppose that we want to find the maximum height of our students.  Run `max(heightData$heights)` and notice what happens.
+
+Read the documentation on the `max` function and figure out the line you would need to run to output the maximum element in `heightData$heights` **while igorning `NA` values**. 
+Q6: What is the maximum height (to four decimal places)?
+
+## QUESTION 7: Learning Outcome -- Using Which
+
+Lookup the `which.max` function. Then write a line of code that **prints the name** of the tallest individual, and run it in your console.
+
+## Read: Matrices and Lists
+
+Matrices and Lists are two other are data structures that are essential for script writing in R and doing data analysis. But we don't have time to cover everything. For now, just remember that
+
+
+A **matrix** has rows and columns and is homogenous (i.e has only one data type). If you have an application where you need to do numeric matrix computations (e.g matrix multiplications, inverse, determinant, etc.), you'll be interested in using the **matrix** data type. For much more detailed information on matrices, see the Matrix section [here](https://daviddalpiaz.github.io/appliedstats/data-and-programming.html)
+
+A **list** is a heterogenous version of a vector. It can act as a dictionary. It's very useful when writing scripts, and a lot of objects that are returned from functions come in the form of a list. When you need more information, go [here](https://daviddalpiaz.github.io/appliedstats/data-and-programming.html) and look at the section on Lists.
+
+## READ (VERY IMPORTANT): Data Frames
+
+The **data frame** object is the data structure that will hold our complex data sets. Luckily, we've already been working with data frames all class (`heightData`).
+
+The data frame consists of rows and columns. An example of the initialization of a data frame is given below.
+
+```{r}
+example_data = data.frame(x = c(1, 3, 5, 7, 9, 1, 3, 5, 7, 9),
+                          y = c(rep("Hello", 9), "Goodbye"),
+                          z = rep(c(TRUE, FALSE), 5))
+```
+
+## QUESTION 8: Learning Outcome: Generating Random Numbers and Constructing Data Frames
+
+What are the column names for `example_data`?
+
+## READ: More on Data Frames
+
+A data frame is not required to have the same data type for each element. A data frame is a **list** of vectors. So, each vector must contain the same data type, but the different vectors can store different data types. 
+
+```{r}
+example_data
+```
+
+The elements of a data frame must all be vectors, and have the same length.
+
+```{r}
+example_data$x
+
+all.equal(length(example_data$x),
+          length(example_data$y),
+          length(example_data$z))
+
+str(example_data)
+
+nrow(example_data)
+ncol(example_data)
+dim(example_data)
+```
+
+The `data.frame()` function above is one way to create a data frame. We can also import data from various file types in into `R`, as well as use data stored in packages.
+
+Let's read in the csv that came with this lab located in the data folder. 
+
+## Question 9: Learning Outcome: Loading a Data Frame
+
+[Note: Instruction `1` and `2` below will only be nescessary if your working directory isn't already set to the location of the lab. ]
+
+1. Make sure you've `setwd` to the location of the lab source (you should have already done this)
+2. There is a file in the data directory called "thisLabisAlmostOver.csv"
+3. Go back to the line in this lab that loaded `heightData` (near line 80) and figure out how to load this new csv file into R.
+4. Load this file into a variable called `importedData`
+5. Once you have done this, look at `importedData` by typing `importedData` into the console and running. Inspect the `importedData` object in the Environment panel in Rstudio.  Report as your answer in Canvas the data structure of the first column.
