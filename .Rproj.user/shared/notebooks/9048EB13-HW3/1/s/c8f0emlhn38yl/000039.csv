@@ -1,0 +1,4 @@
+"0",""
+"0","past_avg <- filter(select(past_data, TAVG), !is.na(TAVG))"
+"0","current_avg <- select(filter(select(current_data, TAVG, NAME), NAME == ""SALT LAKE CITY INTERNATIONAL AIRPORT, UT US"", !is.na(TAVG)), TAVG)"
+"0","hist(past_avg$TAVG, xlab=""Average Temperatures F"", main=""Average Weekly Temperatures 1941"")"

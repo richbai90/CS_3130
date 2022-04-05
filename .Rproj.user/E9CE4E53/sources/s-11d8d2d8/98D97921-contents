@@ -1,0 +1,171 @@
+---
+title: "HW3"
+output: html_document
+date: '2022-04-05'
+bibliography: "references.bib"
+---
+
+```{r setup, include=FALSE}
+require("dplyr")
+require("lubridate")
+require("ggplot2")
+
+knitr::opts_chunk$set(echo = TRUE)
+current_data <- read.csv("NOAA.csv")
+past_data <- read.csv("NOAA1941.csv")
+hottest_data <- read.csv("NOAA1934.csv")
+```
+
+## Introduction
+
+Last year at a global climate summit, the Intergovernmental Panel on Climate Change (IPCC) declared the effects of climate change irreversable. This may not come as a surprise; it seems that every day a new report is declaring the current week, month, or year the hottest, dryest, weirdest on record. But what does it mean that a given year, week, or day is the hottest on record? How is climate data quantified, and what should we think when we hear such reports? In this report an attempt is made to break down this question and answer it in a way that can be easily comprehended.
+
+Three seemingly simple questions will be answered in an attempt to understand this broader question:
+
+1. Is Utah drier than it was 80 years ago?
+2. What is the average low temperature in Salt Lake City in January?
+3. What is the "hottest year" on record in Utah?
+4. What is the "coldest year" on record in Utah?
+
+In an attempt to digest these questions, data made publicly available from the National Oceanic and Atmospheric Association (NOAA) is used. From the documentation of the report being used, "...the GHCN-Daily is a composite of climate records from numerous sources that were merged and then subjected to a suite of quality assurance reviews. The archive includes over 40 meteorological elements including temperature daily maximum/minimum, temperature at observation time, precipitation, snowfall, snow depth, evaporation, wind movement, wind maximums, soil temperature, cloudiness, and more." @GHCN
+
+## Process
+
+To answer these questions, we examine the relevant data data collected from 2021, and compare it to the same data of 1941. This type of direct comparison isn't the most accurate methodology to use. A better sample would include samples from several years before and after the target years, to minimize the possibility of these two years being an outlier in a larger data set. Unfortunately, bandwidth constraints imposed on NOAA's website, along with processing constraints on the author's machine, make such an analysis impractical. Therefore, the evidence examined herein should be used strictly for a frame of reference and not as an extensive analysis.
+
+## Question 1: Is utah drier today than it was 80 years ago?
+
+This will be an exceedingly difficult question to answer with our current data set. The temperature data for the year 1941 was collected only for Salt Lake City. For this reason, we will restrict our sample to Salt Lake City for both data sets to not skew the results.
+
+```{r temps}
+
+past_avg <- filter(select(past_data, TAVG), !is.na(TAVG))
+current_avg <- select(filter(select(current_data, TAVG, NAME), NAME == "SALT LAKE CITY INTERNATIONAL AIRPORT, UT US", !is.na(TAVG)), TAVG)
+hist(past_avg$TAVG, xlab="Average Temperatures F", main="Average Weekly Temperatures 1941")
+hist(current_avg$TAVG, xlab="Average Temperatures F", main="Average Weekly Temperatures 2001")
+```
+
+From the plots above, 2021 appears to have been, on average, much warmer than 1941. Without more data it's impossible to say whether this is part of a larger trend, or an outlier. The data also reveals the high temperatures were higher than they were in 1941. Furthermore, the temperatures in 1941 spanned a much wider, even curve. Meanwhile, temperatures in 2021 spent much more time at extreme values. This is inline with the expectations for climate change. The temperatures will tend towards more extremes rather than necessarily being hotter all the time. We can examine this trend further by looking at the max and min values for each month on record in 1941 and 2021 respectively.
+
+```{r max_temps}
+max_1941 <- unique(select(past_data, TMAX, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+  mutate(
+    MAX_BY_MONTH = max(TMAX, na.rm = T),
+    YEAR = "1941"
+  ) %>% select(MONTH, YEAR, MAX_BY_MONTH))
+
+max_2021 <- unique(select(current_data, TMAX, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+  mutate(
+    MAX_BY_MONTH = max(TMAX, na.rm = T),
+    YEAR="2021"
+  ) %>% select(MONTH, YEAR, MAX_BY_MONTH))
+
+# Min values
+
+min_1941 <- unique(select(past_data, TMIN, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+  mutate(
+    MIN_BY_MONTH = min(TMIN, na.rm = T),
+    YEAR = "1941"
+  ) %>% select(MONTH, YEAR, MIN_BY_MONTH))
+
+min_2021 <- unique(select(current_data, TMIN, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+  mutate(
+    MIN_BY_MONTH = min(TMIN, na.rm = T),
+    YEAR="2021"
+  ) %>% select(MONTH, YEAR, MIN_BY_MONTH))
+
+
+ggplot(rbind(max_1941, max_2021)) + 
+    geom_bar(position="dodge", stat="identity", mapping = aes(fill=YEAR, y=MAX_BY_MONTH, x=MONTH)) +
+    ylab("Monthly Highs (F)") +
+    xlab("")
+
+ggplot(rbind(min_1941, min_2021)) + 
+    geom_bar(position="dodge", stat="identity", mapping = aes(fill=YEAR, y=MIN_BY_MONTH, x=MONTH)) +
+    ylab("Monthly Lows (F)") +
+    xlab("")
+```
+Here we see an interesting trend. The hottest days of the months were warmer in 2021 than the same months in 1941. This follows what we've seen with the average temperature. The coldest days, however, were warmer in 2021 during the winter months, but significantly colder during the spring, summer, and fall months. This seems to indicate something of a shift in temperature patterns as it relates to seasons. This would be a very interesting topic to investigate in a future paper.
+
+## Question 2: What is the average low temperature in January in Salt Lake City?
+
+To answer this question is pretty straight forward. We will examine the lows of each day in January 2021 and January 1941, and perform a simple average over the data.
+
+```{r avg_lows}
+avg_lows_1941 <- unique(select(past_data, TMIN, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+    summarize_at(.vars = dplyr::vars(TMIN), list(MEAN=function(t) mean(t,na.rm = T)))
+  ) %>% mutate(
+    YEAR = "1941"
+  ) 
+
+avg_lows_2021 <- unique(select(current_data, TMIN, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+    summarize_at(.vars = dplyr::vars(TMIN), list(MEAN=function(t) mean(t,na.rm = T)))
+  ) %>% mutate(
+    YEAR = "2021"
+  ) 
+
+ggplot(rbind(avg_lows_1941, avg_lows_2021)) + 
+    geom_bar(position="dodge", stat="identity", mapping = aes(fill=YEAR, y=MEAN, x=MONTH)) +
+    labs(title = "Monthly Low Temperature Averages (F)") +
+    xlab("") +
+    ylab("Temperature (F)")
+```
+In January the average temperature was approximately 15 degrees in 2021, plus or minus about 1/20th of a degree. In 1941 the average temperature was approximately 16 degrees. The data here also shows a similar trend of an overall shifting of the colder temperatures and warmer temperatures.
+
+## Question 3: What is the "hottest year" on record in Utah?
+
+According to NOAA national centers for environmental information, 1934 is the hottest year on record in Utah with an average annual temperature of 51.3 degrees F. To understand that better we'll examine this year more closely.
+
+```{r hottest_year}
+avg_lows_1934 <- unique(select(hottest_data, TMIN, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+    summarize_at(.vars = dplyr::vars(TMIN), list(MEAN=function(t) mean(t,na.rm = T)))
+  )  %>% mutate(
+    YEAR = "1934"
+  ) 
+
+avg_lows_2021 <- unique(select(current_data, TMIN, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+    summarize_at(.vars = dplyr::vars(TMIN), list(MEAN=function(t) mean(t,na.rm = T)))
+  ) %>% mutate(
+    YEAR = "2021"
+  ) 
+
+avg_highs_1934 <- unique(select(hottest_data, TMAX, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+    summarize_at(.vars = dplyr::vars(TMAX), list(MEAN=function(t) mean(t,na.rm = T)))
+  )  %>% mutate(
+    YEAR = "1934"
+  ) 
+
+avg_highs_2021 <- unique(select(current_data, TMAX, DATE) %>%
+  group_by(MONTH=month(floor_date(as.Date(DATE), "month"), label=T, abbr = T)) %>%
+    summarize_at(.vars = dplyr::vars(TMAX), list(MEAN=function(t) mean(t,na.rm = T)))
+  ) %>% mutate(
+    YEAR = "2021"
+  ) 
+
+ggplot(rbind(avg_lows_1934, avg_lows_2021)) + 
+    geom_bar(position="dodge", stat="identity", mapping = aes(fill=YEAR, y=MEAN, x=MONTH)) +
+    labs(title = "Monthly Low Temperature Averages (F)") +
+    xlab("") +
+    ylab("Temperature (F)")
+
+ggplot(rbind(avg_highs_1934, avg_highs_2021)) + 
+    geom_bar(position="dodge", stat="identity", mapping = aes(fill=YEAR, y=MEAN, x=MONTH)) +
+    labs(title = "Monthly High Temperature Averages (F)") +
+    xlab("") +
+    ylab("Temperature (F)")
+
+```
+As can be seen, 1934 had significantly higher high temperatures every month, and higher low temperatures for most months than the same months in 2021. Unfortunately the weekly average temperatures for the year 1934 were not available for download.
+
+## Question 4: What is the "coldest year" on record in Utah?
+
+I wasn't able to find the coldest year on record in Utah. I searched through several years, but I wasn't able to download enough data to filter all through all the data. The coldest day on record (-69 degrees F) was February 1, 1985 recorded in Peter Sinks.

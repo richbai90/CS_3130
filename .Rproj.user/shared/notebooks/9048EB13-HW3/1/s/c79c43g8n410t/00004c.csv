@@ -1,0 +1,5 @@
+"0",""
+"0","ggplot(rbind(min_1941, min_2021)) + "
+"0","    geom_bar(position=""dodge"", stat=""identity"", mapping = aes(fill=YEAR, y=MIN_BY_MONTH, x=MONTH)) +"
+"0","    ylab(""Monthly Lows (F)"") +"
+"0","    xlab("""")"

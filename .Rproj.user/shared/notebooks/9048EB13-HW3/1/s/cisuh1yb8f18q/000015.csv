@@ -1,0 +1,7 @@
+"0",""
+"0","ggplot(rbind(avg_highs_1934, avg_highs_2021)) + "
+"0","    geom_bar(position=""dodge"", stat=""identity"", mapping = aes(fill=YEAR, y=MEAN, x=MONTH)) +"
+"0","    labs(title = ""Monthly High Temperature Averages (F)"") +"
+"0","    xlab("""") +"
+"0","    ylab(""Temperature (F)"")"
+"0",""
